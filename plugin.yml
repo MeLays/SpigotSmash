@@ -1,0 +1,10 @@
+name: Smash
+version: 1.0
+description: Smash by melays.de
+author: MeLays
+main: de.melays.smash.main
+softdepend: [Vault] 
+commands:
+  smash:
+    description: Smash Minigame Setup
+    usage: /smash ...

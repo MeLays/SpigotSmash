@@ -24,3 +24,6 @@ reduce: "%prefix% You now have the effect &aResistance&7! (&aMultiplier: %p%%&7)
 reduce_over: "%prefix% You no longer have the effect &cResistance&7! (&cMultiplier: %p%%&7)"
 chat: "%prefix%%player%%suffix% &8»&7 %msg%"
 chat_spec: "&7[S] %prefix%%player%%suffix% &8»&7&o %msg%"
+noskip: "%prefix% You already tried to skip the game."
+skip: "%prefix% &a%player% &7voted to skip this game."
+skipped: "%prefix% &athe area has been skipped."

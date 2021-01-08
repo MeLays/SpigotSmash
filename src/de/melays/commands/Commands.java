@@ -71,6 +71,16 @@ public class Commands {
             		}
             	}
             	
+              	else if (args[0].equalsIgnoreCase("skip")){
+                	Arena a = plugin.am.searchPlayer(p);
+                	if (a == null){
+            			p.sendMessage(plugin.mf.getMessage("notingame", true));
+            			return true;
+                	}
+                	a.voteSkip(p);
+                	return true;	
+            	}
+            	
             	//Admin Commands
             	else if (args[0].equalsIgnoreCase("admin")){
             		if (!p.hasPermission("smash.admin")){

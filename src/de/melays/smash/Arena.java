@@ -31,6 +31,8 @@ public class Arena {
 	
 	HashMap<Player, Boolean> isSmashing = new HashMap<Player, Boolean>();
 	
+	public ArrayList<Player> playersVotedSkip = new ArrayList<Player>();
+	
 	int max = 0;
 	int min = 0; 
 	
@@ -149,6 +151,26 @@ public class Arena {
 		p.setAllowFlight(true);
 	}
 	
+	public void voteSkip(Player p) {
+		if (!this.playersVotedSkip.contains(p)) {
+			this.playersVotedSkip.add(p);
+			p.sendMessage(plugin.mf.getMessage("skip", true));
+		}
+		else {
+			p.sendMessage(plugin.mf.getMessage("noskip", true));
+		}
+		
+		int c = 0;
+		for (Player p2 : this.players) {
+			if (this.playersVotedSkip.contains(p2)) c++;
+		}
+		
+		if (c > (this.players.size() / 2) +1) {
+			p.sendMessage(plugin.mf.getMessage("skipped", true));
+			this.restart();
+		}
+	}
+	
 	public void leave (Player p){
 		ColorTabAPI.clearTabStyle(p, players);
 		if (players.contains(p)){
@@ -204,6 +226,8 @@ public class Arena {
 				leave(p);
 			}
 		}
+		playersVotedSkip = new ArrayList<Player>();
+		
 		im.restore();
 		im = new ItemManager(this);
 		data = new ArenaData(this);

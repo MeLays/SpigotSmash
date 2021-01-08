@@ -154,7 +154,7 @@ public class Arena {
 	public void voteSkip(Player p) {
 		if (!this.playersVotedSkip.contains(p)) {
 			this.playersVotedSkip.add(p);
-			p.sendMessage(plugin.mf.getMessage("skip", true));
+			p.sendMessage(plugin.mf.getMessage("skip", true).replace("%player%", p.getDisplayName()));
 		}
 		else {
 			p.sendMessage(plugin.mf.getMessage("noskip", true));
@@ -162,10 +162,12 @@ public class Arena {
 		
 		int c = 0;
 		for (Player p2 : this.players) {
-			if (this.playersVotedSkip.contains(p2)) c++;
+			if (this.playersVotedSkip.contains(p2)) {
+				c++;
+			}
 		}
 		
-		if (c > (this.players.size() / 2) +1) {
+		if (c >= (this.players.size() / 2) +1) {
 			p.sendMessage(plugin.mf.getMessage("skipped", true));
 			this.restart();
 		}

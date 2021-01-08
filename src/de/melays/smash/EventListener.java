@@ -5,12 +5,15 @@ import java.util.HashMap;
 
 import org.bukkit.Bukkit;
 import org.bukkit.Effect;
+import org.bukkit.Location;
 import org.bukkit.Material;
+import org.bukkit.Sound;
 import org.bukkit.World;
 import org.bukkit.block.Block;
 import org.bukkit.block.BlockFace;
 import org.bukkit.entity.Entity;
 import org.bukkit.entity.EntityType;
+import org.bukkit.entity.FallingBlock;
 import org.bukkit.entity.Fireball;
 import org.bukkit.entity.Item;
 import org.bukkit.entity.Player;
@@ -58,7 +61,8 @@ public class EventListener implements Listener{
 	    	if (!a.doublejump || a.state != GameState.INGAME || !a.players.contains(p)){
 	    		return;
 	    	}
-	    	if ((this.cooldown.get(p) != null) && (((Boolean)this.cooldown.get(p)).booleanValue())) {
+	    	if ((this.cooldown.get(p) != null) && (((Boolean)this.cooldown.get(p)).booleanValue()) && e.isSneaking()) {
+	    		a.isSmashing.put(p, true);
 	    		p.setVelocity(new Vector(0, -5, 0));
 	    	}
 	    }
@@ -79,8 +83,8 @@ public class EventListener implements Listener{
 	    	}
 	    	if (this.cooldown.get(p) != null || (!((Boolean)this.cooldown.get(p)).booleanValue())){
 		        this.cooldown.put(p, Boolean.valueOf(true));
-		        double vm = 1.6;
-		        double vy = 1.0;
+		        double vm = 1.8;
+		        double vy = 1.2;
 		        p.setVelocity(p.getLocation().getDirection().multiply(vm).setY(vy));
 		        World w = p.getWorld();
 		        w.playEffect(p.getLocation(), Effect.MOBSPAWNER_FLAMES, 2000);
@@ -91,11 +95,12 @@ public class EventListener implements Listener{
 					@Override
 					public void run() {
 						
+						p.playSound(p.getLocation(), Sound.LEVEL_UP, 1, 1);
 						p.setAllowFlight(true);
 						cooldown.put(p, Boolean.valueOf(false));
 						
 					}
-		        }.runTaskLater(a.plugin, 60);
+		        }.runTaskLater(a.plugin, 40);
 	    	}
 	    }
 	}
@@ -117,7 +122,40 @@ public class EventListener implements Listener{
 					e.setCancelled(true);
 				}
 				else if (e.getCause() == DamageCause.FALL) {
-					e.setCancelled(true);
+					
+					if (p.isSneaking()) {
+						
+						e.setDamage(0);
+						
+						double damage = e.getDamage() + 10;
+						for (Entity e2 : p.getLocation().getWorld().getNearbyEntities(p.getLocation(), 5 , 5, 5)) {
+							if (e2 instanceof Player) {
+								Player p2 = (Player) e2;
+								if (p2 == p)continue;
+								
+								
+								a.playerdata.get(p2).addDamage((int) (damage));
+								a.playerdata.get(p2).updateDamage();
+								p2.damage(0.5);
+								p2.playSound(p2.getLocation(), Sound.HURT_FLESH, 1, 1);
+								
+								p.getLocation().getWorld().playEffect(p.getLocation(), Effect.SNOWBALL_BREAK, 4);
+								p.getLocation().getWorld().playEffect(p.getLocation(), Effect.SNOWBALL_BREAK, 4);
+
+								Location loc1 = p.getLocation();
+								Location loc2 = p2.getLocation();
+								
+								Vector v = new Vector(loc1.getX() -loc2.getX() , 3 ,loc1.getZ() -loc2.getZ());
+								
+								double mult = 1 + a.playerdata.get(p2).getMultiplikator();
+								
+								p2.setVelocity(v.normalize().multiply(new Vector(3,1,3)).multiply(mult));
+							}
+						}
+					}
+					
+					else
+						e.setCancelled(true);
 				}
 				else if (a.state == GameState.INGAME){
 					if (e.getCause() == DamageCause.BLOCK_EXPLOSION || e.getCause() == DamageCause.ENTITY_EXPLOSION){
@@ -230,23 +268,18 @@ public class EventListener implements Listener{
 	
 	@EventHandler
 	public void onJoin(PlayerJoinEvent e){
-		new BukkitRunnable() {
-			@Override
-			public void run() {
-				if (plugin.getConfig().isSet("autojoin")){
-					String autojoin  = plugin.getConfig().getString("autojoin");
-					if (!autojoin.equals("none") && !autojoin.equals("random"))
-						plugin.am.getArena(autojoin).join(e.getPlayer());
-					if (autojoin.equals("random")){
-						if (plugin.autojoin == null)
-							plugin.autojoin = (new ArrayList<Arena> (plugin.am.arenas.values())).get(Tools.randInt(0, plugin.am.arenas.values().size()-1)).name;
-						for (Player p : Bukkit.getOnlinePlayers()){
-							plugin.am.getArena(plugin.autojoin).join(p);
-						}
-					}
-				}
+
+		if (plugin.getConfig().isSet("autojoin")){
+			String autojoin  = plugin.getConfig().getString("autojoin");
+			if (!autojoin.equals("none") && !autojoin.equals("random"))
+				plugin.am.getArena(autojoin).join(e.getPlayer());
+			if (autojoin.equals("random")){
+				if (plugin.autojoin == null)
+					plugin.autojoin = (new ArrayList<Arena> (plugin.am.arenas.values())).get(Tools.randInt(0, plugin.am.arenas.values().size()-1)).name;
+				plugin.am.getArena(plugin.autojoin).join(e.getPlayer());
 			}
-		}.runTaskLater(plugin, 5);
+		}
+			
 	}
 	
 	@EventHandler
@@ -335,6 +368,15 @@ public class EventListener implements Listener{
 			else if (a.state == GameState.INGAME && e.getTo().getY() < a.smaller.getY()){
 				a.death(e.getPlayer());
 			}
+			if (a.isSmashing.get(p)) {
+//				if (p.isOnGround()) {
+//					//SMASH
+//					a.isSmashing.put(p, false);
+//		    		p.getLocation().getWorld().createExplosion(p.getLocation().getX(), p.getLocation().getY() , p.getLocation().getZ(), 4F, false , false);					
+//				}
+			}			
+			
+			
 			double smash_value = Math.abs(p.getVelocity().getX()) + Math.abs(p.getVelocity().getY());
 			try {
 				if (a.playerdata.get(p).smashing && a.inMap(p.getLocation())){
@@ -354,9 +396,10 @@ public class EventListener implements Listener{
 			} catch (Exception e1) {
 
 			}
-			
 			a.playerdata.get(p).velocity_last = smash_value;
+
 			
+						
 		}
 	}
 	

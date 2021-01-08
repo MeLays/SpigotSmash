@@ -15,8 +15,8 @@ public class PlayerData {
 	}
 	
 	int damage = 0;
-	int lives = 3;
-	int max_lives = 3;
+	int lives = 4;
+	int max_lives = 4;
 	
 	public boolean smashing = false;
 	public double velocity_last;

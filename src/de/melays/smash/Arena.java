@@ -29,6 +29,8 @@ public class Arena {
 	public HashMap<Player,Integer> damagemultiplier = new HashMap<Player,Integer>();
 	public HashMap<Player,Integer> reducermultiplier = new HashMap<Player,Integer>();
 	
+	HashMap<Player, Boolean> isSmashing = new HashMap<Player, Boolean>();
+	
 	int max = 0;
 	int min = 0; 
 	
@@ -116,6 +118,7 @@ public class Arena {
 				p.setGameMode(GameMode.SURVIVAL);
 				damagemultiplier.put(p, 100);
 				reducermultiplier.put(p, 100);
+				isSmashing.put(p, false);
 				playerdata.put(p, new PlayerData(p , this));
 				if (!silent)
 					sendMessage(plugin.mf.getMessage("playerjoin", true).replace("%player%", p.getName()));
@@ -274,6 +277,7 @@ public class Arena {
 				playerdata.get(p).updateLifes();
 				im.playerDrop(p);
 				playerdata.get(p).smashing = false;
+				isSmashing.put(p, false);
 				p.setAllowFlight(true);
 				playerdata.get(p).velocity_last = 0.0;
 				p.getInventory().clear();

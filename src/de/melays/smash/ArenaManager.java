@@ -43,6 +43,8 @@ public class ArenaManager {
 	}
 	
 	public void stopAll() {
+		@SuppressWarnings("unchecked")
+		HashMap<String , Arena> arenas = (HashMap<String, Arena>) this.arenas.clone();
 		for (Arena a : arenas.values()) {
 			a.stopComplete();
 		}

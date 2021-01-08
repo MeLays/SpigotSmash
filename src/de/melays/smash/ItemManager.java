@@ -29,6 +29,7 @@ import de.melays.smash.items.SI_ReducerPotion;
 import de.melays.smash.items.SI_RocketLauncher;
 import de.melays.smash.items.SI_StoneSword;
 import de.melays.smash.items.SI_Storm;
+import de.melays.smash.items.SI_TNTWalk;
 import de.melays.smash.items.SI_WoodSword;
 import de.melays.smash.items.SI_Yeeter;
 
@@ -64,6 +65,7 @@ public class ItemManager {
 		items.add(new SI_FragGrenade(m , this).setDefaultAmount(this));
 		items.add(new SI_ReducerPotion(m , this).setDefaultAmount(this));
 		items.add(new SI_Yeeter(m , this).setDefaultAmount(this));
+		items.add(new SI_TNTWalk(m , this).setDefaultAmount(this));
 		
 		this.getItemConfig().options().copyDefaults(true);
 		this.saveItemConfig();
